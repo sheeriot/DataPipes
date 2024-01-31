@@ -14,10 +14,8 @@ Custom filters:
   key===<group>-<device>-decode
 
 */
-
-
 // Decode the Payload from Base64 using Byte Buffer
-// Get the port from Telem
+
 var tag_set = event.data.data.tag_set
 var field_set = event.data.data.field_set
 var decode_set = event.data.data.decode_set
@@ -31,33 +29,36 @@ if (payload !== null) {
     var decoded_payload = Decoder(buffer,port)
 
     // Adeunis FTD - derived values for this sensor
-    field_set.message_type      = "";
-    field_set.temperature       = decoded_payload.temperature;
-    field_set.ul_counter        = decoded_payload.ul_counter;
-    field_set.battery_voltage   = decoded_payload.battery_voltage;
+    field_set.message_type      = ""
+    field_set.temperature       = decoded_payload.temperature
+    field_set.ul_counter        = decoded_payload.ul_counter
+    field_set.battery_voltage   = decoded_payload.battery_voltage
     // Device GPS readings
-    field_set.gps_quality       = decoded_payload.gps_quality;
-    field_set.gps_hdop          = decoded_payload.hdop;
-    field_set.gps_sats          = decoded_payload.sats;
-    field_set.gps_valid         = decoded_payload.gps_valid;
+    field_set.gps_quality       = decoded_payload.gps_quality
+    field_set.gps_hdop          = decoded_payload.hdop
+    field_set.gps_sats          = decoded_payload.sats
     if (decoded_payload.gps_valid == 1) {
         // log.trace('SAVE DEVICE LOCATION');
-        field_set.device_latitude   = decoded_payload.latitude.toFixed(6);
-        field_set.device_longitude  = decoded_payload.longitude.toFixed(6);
-        field_set.message_type      = "gps report";
+        field_set.latitude   = Number(decoded_payload.latitude.toFixed(6))
+        field_set.longitude  = Number(decoded_payload.longitude.toFixed(6))
+        field_set.message_type = "GPS-Report"
+        field_set.gps_valid = true
+    } else {
+        field_set.gps_valid = false
     }
+    
     // Downlink RF signal performance
-    field_set.dl_counter = decoded_payload.dl_counter;
-    field_set.dl_rssi = decoded_payload.rssi_dl;
-    field_set.dl_snr = decoded_payload.snr_dl;
+    field_set.dl_counter = decoded_payload.dl_counter
+    field_set.dl_rssi = decoded_payload.rssi_dl
+    field_set.dl_snr = decoded_payload.snr_dl
     // Message Type
     if (decoded_payload.trigger == "accelerometer") {
-        field_set.message_type = "accelerometer trigger";
+        field_set.message_type = "accelerometer trigger"
     }
     if (decoded_payload.trigger == "pushbutton") {
-        field_set.message_type = "pushbutton trigger";
+        field_set.message_type = "pushbutton trigger"
     }
-	// log.trace('field_set_decoded:\n' + JSON.stringify(field_set));
+	// log.trace('field_set_decoded:\n' + JSON.stringify(field_set))
 }
 // log.trace('Field Set:\n' + JSON.stringify(field_set))
 
